@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <script type="text/javascript" src="seedrandom.js" ></script>
+    <script type="text/javascript" src="jquery.js" ></script>
+    <script type="text/javascript" src="JScript.js" ></script>
+    <style type="text/css">
+        .questionRow
+        {
+            padding: 0.1em;
+            font-family: "Bookman Old Style";
+            font-size: 28px;
+            display: block;
+            margin: 0.2em;
+        }
+        .questionNum
+        {
+            font-family: Batang;
+            font-size: 10px;
+            display: inline-block;
+            width: 5em;
+        }
+        #bookNo
+        {
+            width: 128px;
+        }
+    </style>
+</head>
+<body>
+<h2>Math Workbook Creator </h2>
+<script type="text/javascript">
+    function redrawExercise() {
+        var ex = new Exercise($("#level").val(), $("#bookNo").val());
+        $("#content0").html("");
+        for (i = 0; i < 12; i++) {
+            var q = ex.getQuestion(i);
+            var inputbox = "<input type='text' maxlength='4'></input>";
+            $("#content0").append("<div class='questionRow'>" + "<span class='questionNum'>(" + (i + 1) + ")</span>" 
+                + q + inputbox + "</div>");
+        }
+    }
+    $(function() {
+
+        $("#next").click(function() {
+            var bookNum = parseInt($("#bookNo").val(), 10);
+            bookNum = bookNum + 1;
+            $("#bookNo").val(bookNum);
+            redrawExercise();
+        });
+        $("#prev").click(function() {
+
+            var bookNum = parseInt($("#bookNo").val(), 10);
+            if (bookNum == 1) return;
+            bookNum = bookNum - 1;
+            $("#bookNo").val(bookNum);
+            redrawExercise();
+        });
+    });
+</script>
+<div>
+<select id="level"><option value="2A">2A</option><option value="A">A</option></select>
+<input id="bookNo" type="text" value="1" maxlength="4" />    
+</div>
+    <input id="next" title="Next" 
+        type="button" value="Next" />
+        <input id="prev" title="Prev" 
+        type="button" value="Prev" />
+        
+
+    <div id="content0">
+    </div>
+
+</body>
+</html>
