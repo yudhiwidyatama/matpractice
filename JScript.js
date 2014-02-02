@@ -153,7 +153,6 @@ var AddWithMax = function(max, seed) {
     this.useSeed = "S" + (seed * 100 + 14);
     this.off = 0;
     this.maxX = max;
-    this.r = new Math.seedrandom(this.useSeed );
 };
 AddWithMax.prototype.questions = function() {
     return 12;
@@ -161,9 +160,7 @@ AddWithMax.prototype.questions = function() {
 AddWithMax.prototype.question = function(idx) {
     var firstNum;
     var secNum;
-    if (idx == 0) {
-        this.r = new Math.seedrandom(this.useSeed);
-    }
+    this.r = new Math.seedrandom(this.useSeed + idx);    
     firstNum = idx + 1;
     if (firstNum >= (this.maxX))
         firstNum = ((firstNum - 1) % ((this.maxX) - 1)) + 1;
