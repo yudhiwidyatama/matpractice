@@ -2,6 +2,8 @@
 var Exercise = function(code, num) {
     this.inner = null;
     this.sequencer = null;
+    this.level = code;
+    this.sheet = num;
     if (code == "2A") {
         this.inner = Level2A.createInner(num);
         this.sequencer = new Sequencer((num - 1) % 10);
@@ -14,6 +16,13 @@ var Exercise = function(code, num) {
 Exercise.prototype.getQuestion = function(idx) {
     return this.sequencer.getQuestion(idx, this.inner);
 };
+Exercise.prototype.questionString = function(question) {
+    return question.anum + " " + question.operation + " " + question.bnum + " = ";
+};
+Exercise.prototype.questionAnswer = function(question) {
+    return eval(question.anum + " " + question.operation + " " + question.bnum );
+};
+
 function main(a) {
     var x = new Exercise("A", 10);
     x.getQuestion(1);
@@ -129,7 +138,9 @@ AdditionX.prototype.questions = function() {
     return this.maxX;
 };
 AdditionX.prototype.question = function(idx) {
-    return "" + (this.off + idx) + " + " + this.x + " = ";
+    var firstNum = this.off + idx;
+    var secNum = this.x;
+    return { "anum": firstNum, "operation": "+", "bnum": secNum };
 };
 var MyRandom = function(seed) {
     this.seed = seed;
@@ -139,11 +150,10 @@ MyRandom.prototype.next = function(maxValplus1) {
 }
 var AddWithMax = function(max, seed) {
     this.x = 0;
-    this.maxX = 0;
+    this.useSeed = "S" + (seed * 100 + 14);
     this.off = 0;
-    this.r = null;
-    (this.maxX) = max;
-    this.r = new Math.seedrandom("S" + (seed * 100 + 14));
+    this.maxX = max;
+    this.r = new Math.seedrandom(this.useSeed );
 };
 AddWithMax.prototype.questions = function() {
     return 12;
@@ -151,12 +161,15 @@ AddWithMax.prototype.questions = function() {
 AddWithMax.prototype.question = function(idx) {
     var firstNum;
     var secNum;
+    if (idx == 0) {
+        this.r = new Math.seedrandom(this.useSeed);
+    }
     firstNum = idx + 1;
     if (firstNum >= (this.maxX))
         firstNum = ((firstNum - 1) % ((this.maxX) - 1)) + 1;
     secNum = 1 + this.r() * ((this.maxX) - firstNum - 1);
     secNum = Math.floor(secNum);
-    return "" + (firstNum) + " + " + secNum + " = ";
+    return { "anum": firstNum, "operation": "+", "bnum": secNum };
 };
 var SubtractionX = function(xx) {
     this.x = 0;
@@ -173,5 +186,7 @@ SubtractionX.prototype.questions = function() {
     return this.maxX;
 };
 SubtractionX.prototype.question = function(idx) {
-    return "" + (idx + this.x) + " - " + this.x + " = ";
+    var firstNum = idx + this.x;
+    var secNum = this.x;
+    return { "anum": firstNum, "operation": "-", "bnum": secNum };
 };

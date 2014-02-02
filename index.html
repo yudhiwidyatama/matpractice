@@ -31,14 +31,77 @@
 <body>
 <h2>Math Workbook Creator </h2>
 <script type="text/javascript">
+    var currentExercise;
+    var timerStart;
+    function make_base_auth(user, password) {
+        var tok = user + ':' + password;
+        var hash = btoa(tok);
+        return "Basic " + hash;
+    }
+    function recordScore(s,recordCallback) {
+        //var baseUrl = "http://yudhi.iriscouch.com";
+        //var baseUrl = "https://yudhi.couchappy.com";
+
+        var baseUrl = "https://yudhi.cloudant.com";
+        var now = new Date();
+        var uuid1 = currentExercise.level + "x" + currentExercise.sheet + "x" + now.getTime() ;
+        var datetime = now.toISOString();
+        var docdata = "{level: " + '"' + currentExercise.level + '", '
+            + " msecs: " + s.diff + ", acc: " + s.score + ", sheet: " + currentExercise.sheet 
+            +", d: " + '"' + datetime + '"'
+            + " }";
+        docdata = '{"level" : "' + currentExercise.level + '", "sheet" : ' + currentExercise.sheet 
+        + ', "msecs" : '+s.diff + ', "acc" : ' + s.score + ', "d" : "'+datetime +'"}'; 
+        $.ajax({
+            url: baseUrl + "/sheet_submission",
+            data: docdata,
+            type: 'POST',
+            dataType: 'json',
+            contentType: 'application/json',
+            error: function() {
+                alert('document save failed :' + docdata);
+            },
+            success: function (d1,st1,jq1) {
+                alert('doc save ok : ' + docdata);
+                recordCallback();
+            }
+        });           
+    }
     function redrawExercise() {
         var ex = new Exercise($("#level").val(), $("#bookNo").val());
         $("#content0").html("");
         for (i = 0; i < 12; i++) {
             var q = ex.getQuestion(i);
-            var inputbox = "<input type='text' maxlength='4'></input>";
+            var inputbox = "<input type='text' maxlength='4' id='q" + i + "' ></input>";
             $("#content0").append("<div class='questionRow'>" + "<span class='questionNum'>(" + (i + 1) + ")</span>" 
-                + q + inputbox + "</div>");
+                + ex.questionString(q) + inputbox + "</div>");
+        }
+        currentExercise = ex;
+        var d = new Date();
+        timerStart = d.getTime();
+    }
+    function checkAnswers() {
+        if (currentExercise) {
+            var correct = 0;
+            var incorrect = 0;
+            for (i = 0; i < 12; i++) {
+                var ans = $("#q" + i).val();
+                var ansInteger = parseInt(ans, 10);
+                var trueAns = currentExercise.questionAnswer(currentExercise.getQuestion(i));
+                if (ansInteger == trueAns) {
+                    correct = correct + 1;
+                } else {
+                    incorrect = incorrect + 1;
+                }
+            }
+            var diff = 0;
+            if (timerStart) {
+                var d = new Date();
+                diff = d.getTime() - timerStart;
+            }
+            return { "correct": correct, "incorrect": incorrect, "score": (correct * 100.0 / 12), "diff": diff };
+        } else {
+        return { "correct": 0, "incorrect": 0, "score": 0, "diff": 0 };
         }
     }
     $(function() {
@@ -49,6 +112,21 @@
             $("#bookNo").val(bookNum);
             redrawExercise();
         });
+        $("#next0").click(function() {
+            var checkResult = checkAnswers();
+
+            if (checkResult.score < 80) {
+                alert('Skor ' + checkResult.score + '; Benar = ' + checkResult.correct + " Salah = " + checkResult.incorrect + ", periksa lagi!");
+            } else {
+                recordScore(checkResult, function() {
+                    var bookNum = parseInt($("#bookNo").val(), 10);
+                    bookNum = bookNum + 1;
+                    $("#bookNo").val(bookNum);
+                    redrawExercise();
+                });
+            }
+        });
+
         $("#prev").click(function() {
 
             var bookNum = parseInt($("#bookNo").val(), 10);
@@ -71,6 +149,10 @@
 
     <div id="content0">
     </div>
+
+    <p>
+    <input id="next0" title="Check Answer and Next" 
+        type="button" value="Check Answer and Next" /></p>
 
 </body>
 </html>
