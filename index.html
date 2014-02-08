@@ -62,14 +62,14 @@
                 alert('document save failed :' + docdata);
             },
             success: function (d1,st1,jq1) {
-                alert('doc save ok : ' + docdata);
+          //      alert('doc save ok : ' + docdata);
                 recordCallback();
             }
         });           
     }
     function redrawExercise() {
         var ex = new Exercise($("#level").val(), $("#bookNo").val());
-        $("#content0").html("");
+        $("#content0").html("<h3>" + ex.title() + "</h3>");
         for (i = 0; i < 12; i++) {
             var q = ex.getQuestion(i);
             var inputbox = "<input type='text' maxlength='4' id='q" + i + "' ></input>";
@@ -114,16 +114,19 @@
         });
         $("#next0").click(function() {
             var checkResult = checkAnswers();
-
-            if (checkResult.score < 80) {
+            if (checkResult.score < 100) {
+                recordScore(checkResult, function() {
+                });
                 alert('Skor ' + checkResult.score + '; Benar = ' + checkResult.correct + " Salah = " + checkResult.incorrect + ", periksa lagi!");
             } else {
                 recordScore(checkResult, function() {
+                    alert('Waktu anda ' + (checkResult.diff / 1000) + ' detik');
                     var bookNum = parseInt($("#bookNo").val(), 10);
                     bookNum = bookNum + 1;
                     $("#bookNo").val(bookNum);
                     redrawExercise();
                 });
+                
             }
         });
 

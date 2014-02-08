@@ -13,6 +13,11 @@ var Exercise = function(code, num) {
         this.sequencer = new Sequencer((num - 1) % 10);
     }
 };
+Exercise.prototype.title = function() {
+    if (this.inner != null)
+        return this.inner.title();
+    return "-";
+}
 Exercise.prototype.getQuestion = function(idx) {
     return this.sequencer.getQuestion(idx, this.inner);
 };
@@ -45,6 +50,21 @@ LevelA.createInner = function(levelNum, seed) {
     if (levelNum <= 50 && levelNum > 40) {
         return new AddWithMax(20, seed);
     }
+    if (levelNum <= 90 && levelNum > 80) {
+        return new SubtractionX(1);
+    }
+    if (levelNum <= 100 && levelNum > 90) {
+        return new SubtractionX(2);
+    }
+    if (levelNum <= 110 && levelNum > 100) {
+        return new SubtractionX(3);
+    }
+    if (levelNum <= 120 && levelNum > 110) {
+        return new SubtractionX(4);
+    }
+    if (levelNum <= 130 && levelNum > 120) {
+        return new SubtractionX(5);
+    }
     return new AddWithMax(28, seed);
 };
 var Level2A = function() {
@@ -61,6 +81,30 @@ Level2A.createInner = function(levelNum) {
     }
     if (levelNum <= 50 && levelNum > 40) {
         return new AdditionX(5, 15);
+    }
+    if (levelNum <= 80 && levelNum > 70) {
+        return new AdditionX(6, 12);
+    }
+    if (levelNum <= 90 && levelNum > 80) {
+        return new AdditionX(6, 14);
+    }
+    if (levelNum <= 100 && levelNum > 90) {
+        return new AdditionX(7, 11);
+    }
+    if (levelNum <= 110 && levelNum > 100) {
+        return new AdditionX(7, 13);
+    }
+    if (levelNum <= 140 && levelNum > 130) {
+        return new AdditionX(8, 11);
+    }
+    if (levelNum <= 150 && levelNum > 140) {
+        return new AdditionX(8, 12);
+    }
+    if (levelNum <= 160 && levelNum > 150) {
+        return new AdditionX(9, 12);
+    }
+    if (levelNum <= 170 && levelNum > 160) {
+        return new AdditionX(10, 15);
     }
     return new AdditionX(4, 12);
 };
@@ -137,6 +181,9 @@ var AdditionX = function(xx, max) {
 AdditionX.prototype.questions = function() {
     return this.maxX;
 };
+AdditionX.prototype.title = function() {
+    return "Addition of " + this.x;
+};
 AdditionX.prototype.question = function(idx) {
     var firstNum = this.off + idx;
     var secNum = this.x;
@@ -168,6 +215,9 @@ AddWithMax.prototype.question = function(idx) {
     secNum = Math.floor(secNum);
     return { "anum": firstNum, "operation": "+", "bnum": secNum };
 };
+AddWithMax.prototype.title = function() {
+    return "Additions below or equal to " + this.maxX;
+}
 var SubtractionX = function(xx) {
     this.x = 0;
     this.maxX = 0;
@@ -187,3 +237,6 @@ SubtractionX.prototype.question = function(idx) {
     var secNum = this.x;
     return { "anum": firstNum, "operation": "-", "bnum": secNum };
 };
+SubtractionX.prototype.title = function() {
+    return "Substraction with number " + this.x;
+}
