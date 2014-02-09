@@ -5,6 +5,10 @@
     <title></title>
     <script type="text/javascript" src="seedrandom.js" ></script>
     <script type="text/javascript" src="jquery.js" ></script>
+    <script type="text/javascript" src="jquery.flot.min.js" ></script>
+    <script type="text/javascript" src="jquery.flot.tooltip.js" ></script>
+    <script type="text/javascript" src="jquery.flot.resize.js" ></script>
+    <script type="text/javascript" src="chart.js" ></script>
     <script type="text/javascript" src="JScript.js" ></script>
     <style type="text/css">
         .questionRow
@@ -26,6 +30,66 @@
         {
             width: 128px;
         }
+        #flotTip {
+  padding: 3px 6px;
+  color: #ffffff;
+  text-align: center;
+  text-decoration: none;
+  background-color: #000000;
+  opacity: 0.8;
+  filter: alpha(opacity=80);
+  z-index: 200;
+  font-size: 13px;
+}
+
+        .widget-chart {
+  display: block;
+  background-color: #658db3;
+  border: 1px solid #4c7399;
+  padding: 12px;
+  /* Colors */
+
+}
+.widget-chart .tickLabel {
+  color: #fff !important;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5) !important;
+}
+.widget-chart .legend .legendLabel {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+.widget-chart.widget-chart-blue {
+  background-color: #54728c;
+  border: 1px solid #41586c;
+}
+.widget-chart.widget-chart-blueLight {
+  background-color: #658db3;
+  border: 1px solid #4c7399;
+}
+.widget-chart.widget-chart-green {
+  background-color: #94b86e;
+  border: 1px solid #7ba350;
+}
+.widget-chart.widget-chart-red {
+  background-color: #e25856;
+  border: 1px solid #db2d2a;
+}
+.widget-chart.widget-chart-yellow {
+  background-color: #ffb848;
+  border: 1px solid #ffa415;
+}
+.widget-chart.widget-chart-orange {
+  background-color: #f89406;
+  border: 1px solid #c67605;
+}
+.widget-chart.widget-chart-purple {
+  background-color: #7a43b6;
+  border: 1px solid #613591;
+}
+.widget-chart.widget-chart-gray {
+  background-color: #555555;
+  border: 1px solid #3b3b3b;
+}
+
     </style>
 </head>
 <body>
@@ -38,11 +102,77 @@
         var hash = btoa(tok);
         return "Basic " + hash;
     }
+    function drawChart(chartdata) {
+        var maxX;
+        var serie1 = [];
+        for (var vidx in chartdata) {
+            var theValue = chartdata[vidx];
+            var x = vidx;
+            var y = theValue.time;
+            serie1.push([x, y]);
+            maxX = x;
+        }
+        var data1 = [{ label: "Completion time", data: serie1}];
+        $.plot("#chartplaceholder", data1, $.extend(true, {}, Chart.getFlotWidgetDefaults(), {
+            xaxis: {
+                min: 0,
+                max: maxX
+            },
+            series: {
+                lines: {
+                    fill: false,
+                    lineWidth: 1.5
+                },
+                points: {
+                    show: true,
+                    radius: 4,
+                    lineWidth: 1.1
+                },
+                grow: { active: true, growings: [{ stepMode: "maximum"}] }
+            },
+            grid: {
+                hoverable: true,
+                clickable: true
+            },
+            tooltip: true,
+            tooltipOpts: {
+                content: function(label, xval, yval, flotItem) {
+                    return "" + label + " : " + yval + "<br>" +
+                        "sheet : " + chartdata[xval].sheet + "<br>" +
+                        "date : " + chartdata[xval].d;
+
+                }
+            }
+        }));
+    }
+    function couchUrl() { 
+        return "https://yudhi.cloudant.com";
+    }
+    function redrawReport() {
+        $("#content0").html("");
+        $("#chartplaceholder").show();
+        var baseUrl = couchUrl();
+        var level = $("#level").val();
+        $.ajax({
+            url: baseUrl + '/sheet_submission/_design/d1/_view/chartHelper?key="' + level + '"',
+            type: 'GET',
+            dataType: 'json',
+            error: function() {
+                alert('error reading chartHelper view');
+            },
+            success: function(d1, st1, jq1) {
+                var rows = d1.rows;
+                var valuelist = rows[0].value;
+                drawChart(valuelist);
+                
+            }
+        });
+    }
     function recordScore(s,recordCallback) {
         //var baseUrl = "http://yudhi.iriscouch.com";
         //var baseUrl = "https://yudhi.couchappy.com";
 
-        var baseUrl = "https://yudhi.cloudant.com";
+        var baseUrl = couchUrl();
         var now = new Date();
         var uuid1 = currentExercise.level + "x" + currentExercise.sheet + "x" + now.getTime() ;
         var datetime = now.toISOString();
@@ -105,7 +235,9 @@
         }
     }
     $(function() {
-
+        $("#resultpage").click(function() {
+            redrawReport();
+        });
         $("#next").click(function() {
             var bookNum = parseInt($("#bookNo").val(), 10);
             bookNum = bookNum + 1;
@@ -126,7 +258,7 @@
                     $("#bookNo").val(bookNum);
                     redrawExercise();
                 });
-                
+
             }
         });
 
@@ -157,5 +289,9 @@
     <input id="next0" title="Check Answer and Next" 
         type="button" value="Check Answer and Next" /></p>
 
+    <p>
+    <input id="resultpage" title="View Results" 
+        type="button" value="View Results" /></p>
+<div id='chartplaceholder' class="widget-chart" style='height: 300px; width: 460px; display:none'></div>
 </body>
 </html>
