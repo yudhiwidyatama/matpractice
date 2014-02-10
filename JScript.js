@@ -218,16 +218,15 @@ AddWithMax.prototype.question = function(idx) {
 AddWithMax.prototype.title = function() {
     return "Additions below or equal to " + this.maxX;
 }
-var SubtractionX = function(xx) {
-    this.x = 0;
-    this.maxX = 0;
-    SubtractionX.call(this, xx, 12);
-};
 var SubtractionX = function(xx, max) {
     this.x = 0;
     this.maxX = 0;
     this.x = xx;
-    this.maxX = max;
+    if (typeof max === "undefined") {
+        this.maxX = 12;
+    } else {
+        this.maxX = max;
+    }
 };
 SubtractionX.prototype.questions = function() {
     return this.maxX;
