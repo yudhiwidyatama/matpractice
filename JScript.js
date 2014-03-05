@@ -8,6 +8,11 @@ var Exercise = function(code, num) {
         this.inner = Level2A.createInner(num);
         this.sequencer = new Sequencer((num - 1) % 10);
     }
+    if (code == "C") {
+        this.inner = LevelC.createInner(num);
+        this.sequencer = new Sequencer((num - 1) % 10);
+    }
+
     if (code == "A") {
         this.inner = LevelA.createInner(num, num % 10);
         this.sequencer = new Sequencer((num - 1) % 10);
@@ -67,6 +72,35 @@ LevelA.createInner = function(levelNum, seed) {
     }
     return new AddWithMax(28, seed);
 };
+var LevelC = function() {
+}
+LevelC.createInner = function(levelNum) {
+    if (levelNum <= 10 && levelNum > 0) {
+        return new MultiplyX(2, 16);
+    }
+    if (levelNum <= 20 && levelNum > 10) {
+        return new MultiplyX(3, 16);
+    }
+    if (levelNum <= 30 && levelNum > 20) {
+        return new MultiplyX(4, 16);
+    }
+    if (levelNum <= 40 && levelNum > 30) {
+        return new MultiplyX(5, 16);
+    }
+    if (levelNum <= 50 && levelNum > 40) {
+        return new MultiplyX(6, 16);
+    }
+    if (levelNum <= 60 && levelNum > 50) {
+        return new MultiplyX(7, 16);
+    }
+    if (levelNum <= 70 && levelNum > 60) {
+        return new MultiplyX(8, 16);
+    }
+    if (levelNum <= 80 && levelNum > 70) {
+        return new MultiplyX(9, 16);
+    }
+    return new MultiplyX(9, 12);
+}
 var Level2A = function() {
 };
 Level2A.createInner = function(levelNum) {
@@ -141,7 +175,7 @@ var Sequencer = function(seed) {
     }
     if (seed == 7) {
         this.start = 5;
-        this.stride = 2;
+        this.stride = 7;
     }
     if (seed == 8) {
         this.start = 5;
@@ -218,14 +252,27 @@ AddWithMax.prototype.question = function(idx) {
 AddWithMax.prototype.title = function() {
     return "Additions below or equal to " + this.maxX;
 }
-var SubtractionX = function(xx, max) {
-    this.x = 0;
-    this.maxX = 0;
-    this.x = xx;
+var MultiplyX = function(paramX) {
+    this.x = paramX;
+    this.maxX = 12;
+}
+MultiplyX.prototype.questions = function() {
+    return this.maxX;
+}
+MultiplyX.prototype.question = function(idx) {
+    var firstNum = idx + 2;
+    var secNum = this.x;
+    return { "anum": firstNum, "operation": "*", "bnum": secNum };
+};
+MultiplyX.prototype.title = function() {
+    return "Multiply with number " + this.x;
+}
+var SubtractionX = function(paramX, paramMaxX) {
+    this.x = paramX;
     if (typeof max === "undefined") {
         this.maxX = 12;
     } else {
-        this.maxX = max;
+        this.maxX = paramMaxX;
     }
 };
 SubtractionX.prototype.questions = function() {
