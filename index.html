@@ -1,6 +1,6 @@
-﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 <head>
     <title></title>
     <script type="text/javascript" src="seedrandom.js" ></script>
@@ -202,7 +202,7 @@
         $("#content0").html("<h3>" + ex.title() + "</h3>");
         for (i = 0; i < 12; i++) {
             var q = ex.getQuestion(i);
-            var inputbox = "<input type='text' maxlength='4' id='q" + i + "' ></input>";
+            var inputbox = "<input type='number' pattern='\\d*' maxlength='4' id='q" + i + "' ></input>";
             $("#content0").append("<div class='questionRow'>" + "<span class='questionNum'>(" + (i + 1) + ")</span>" 
                 + ex.questionString(q) + inputbox + "</div>");
         }
